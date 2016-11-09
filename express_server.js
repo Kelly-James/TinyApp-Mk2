@@ -15,7 +15,6 @@ var urlDatabase = {
 };
 
 app.get('/', (req, res) => {
-  console.log('Cookies: ', req.cookies);
   res.render('pages/index');
 });
 
@@ -66,6 +65,11 @@ app.post('/urls/:id/update', (req, res) => {
   }
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls');
+});
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/');
 });
 
 app.get('/urls.json', (req, res) => {
