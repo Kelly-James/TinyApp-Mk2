@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 5000;
 const stringGen = require('./lib/string_gen.js');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 var urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -13,6 +15,7 @@ var urlDatabase = {
 };
 
 app.get('/', (req, res) => {
+  console.log('Cookies: ', req.cookies);
   res.render('pages/index');
 });
 
@@ -45,7 +48,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
+  res.render('pages/urls_edit', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
 });
 
 // makes post request to urls_index to delete a url; redirects to urls_index
