@@ -16,10 +16,12 @@ app.get('/', (req, res) => {
   res.render('pages/index');
 });
 
+// request for urls_index view; renders page, passing in database object
 app.get('/urls', (req, res) => {
   res.render('pages/urls_index', {urls: urlDatabase});
 });
 
+// makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
 app.post('/urls', (req, res) => {
   let shortURL = stringGen.generator();
   let longURL = req.body.longURL;
@@ -34,12 +36,14 @@ app.get('/new', (req, res) => {
   res.render('pages/urls_new');
 });
 
+// makes get request to the value of longURL for original page
 app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 
+// currently not in use
 app.get('/urls/:id', (req, res) => {
   res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
 });
