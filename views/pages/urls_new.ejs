@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+</head>
+
+<body class="container">
+
+  <header>
+    <% include ../partials/header %>
+  </header>
+
+  <main>
+    <div class="row">
+      <div class="col-sm-8">
+
+        <div class="jumbotron">
+          <form action="/urls" method="POST" style="margin:150px;">
+            <label for="longURL">Enter a URL:</label>
+            <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+            <input type="submit" value="Submit">
+          </form>
+        </div>
+
+      </div>
+      <div class="col-sm-4">
+
+        <div class="well">
+          <h3>Shorten a URL</h3>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <% include ../partials/footer %>
+  </footer>
+
+</body>
+</html>

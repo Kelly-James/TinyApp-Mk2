@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 5000;
 
 app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca' ,
