@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 5000;
+const string = require('./lib/string_gen.js');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -20,13 +21,19 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('Ok')
+  let shortURL = string.gen();
+  let longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect('/urls');
 });
 
-app.get('/urls/new', (req, res) => {
+app.get('/new', (req, res) => {
   res.render('pages/urls_new');
 });
+
+app.get('/urls/:shortURL', (req, res) => {
+  res.redirect(longURL);
+})
 
 app.get('/urls/:id', (req, res) => {
   res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
