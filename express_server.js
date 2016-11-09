@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 5000;
-const string = require('./lib/string_gen.js');
+const stringGen = require('./lib/string_gen.js');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca' ,
+  'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
 
@@ -21,7 +21,7 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  let shortURL = string.gen();
+  let shortURL = stringGen.generator();
   let longURL = req.body.longURL;
   if(!longURL.startsWith('http://')) {
     longURL = 'http://' + longURL;
@@ -38,7 +38,7 @@ app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
-})
+});
 
 app.get('/urls/:id', (req, res) => {
   res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
