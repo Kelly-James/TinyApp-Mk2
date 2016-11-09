@@ -19,16 +19,21 @@ app.get('/urls', (req, res) => {
   res.render('pages/urls_index', {urls: urlDatabase});
 });
 
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('Ok')
+});
+
+app.get('/urls/new', (req, res) => {
+  res.render('pages/urls_new');
+});
+
 app.get('/urls/:id', (req, res) => {
   res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
 });
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  res.end('<html><body>Hello <b>World</b></body></html>\n');
 });
 
 app.listen(PORT, () => {
