@@ -43,9 +43,26 @@ app.get('/urls/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
-// currently not in use
-app.get('/urls/:id', (req, res) => {
+// sends request to render edit page
+app.get('/urls/:id/edit', (req, res) => {
   res.render('pages/urls_show', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
+});
+
+// makes post request to urls_index to delete a url; redirects to urls_index
+app.post('/urls/:id/delete', (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
+});
+
+// makes post request to urls_index to update the longURL; redirects to urls_index
+app.post('/urls/:id/update', (req, res) => {
+  let shortURL = req.params.id
+  let longURL = req.body.longURL;
+  if(!longURL.startsWith('http://')) {
+    longURL = 'http://' + longURL;
+  }
+  urlDatabase[shortURL] = longURL;
+  res.redirect('/urls');
 });
 
 app.get('/urls.json', (req, res) => {

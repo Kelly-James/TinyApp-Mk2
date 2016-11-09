@@ -25,6 +25,9 @@
                   http://tinyapp.com/u/<%= key %>
                 </a>
                 - <%= urls[key]%>
+                <form method="GET" action="/urls/<%= key %>/edit">
+                  <input type="submit" value="EDIT" style="margin:6px;">
+                </form>
               </li>
             <% }; %>
           </ul>
