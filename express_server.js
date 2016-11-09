@@ -23,6 +23,9 @@ app.get('/urls', (req, res) => {
 app.post('/urls', (req, res) => {
   let shortURL = string.gen();
   let longURL = req.body.longURL;
+  if(!longURL.startsWith('http://')) {
+    longURL = 'http://' + longURL;
+  }
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls');
 });
@@ -32,6 +35,8 @@ app.get('/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 })
 
