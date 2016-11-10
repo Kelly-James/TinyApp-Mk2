@@ -87,6 +87,11 @@ app.post('/login', (req, res) => {
   res.redirect('/');
 });
 
+app.post('/logout', (req, res) => {
+  res.clearCookie('username', {path: '/'});
+  res.redirect('/');
+});
+
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
