@@ -8,14 +8,26 @@
       </a>
     </div>
 
-    <div style="position: absolute; right: 0px; top: 0px;">
-      <form method="POST" action="/login">
-        <input type="submit" value="Sign In" style="margin: 4px, 0px, 0px, 0px;">
-        <input name="username" type="text" style="width:150px; margin: 14px;">
-      </form>
-    </div>
+    <% if(username) { %>
+      <div style="position: absolute; right: 12px; top: 12px;">
+        <form method="POST" action="/logout">
+          <input type="submit" value="Sign Out" style="margin: 4px, 0px, 0px, 0px;">
+        </form>
+      </div>
+    <% } else { %>
+      <div style="position: absolute; right: 0px; top: 0px;">
+        <form method="POST" action="/login">
+          <input type="submit" value="Sign In" style="margin: 4px, 0px, 0px, 0px;">
+          <input name="username" type="text" style="width:150px; margin: 14px;">
+        </form>
+      </div>
+    <% } %>
 
-    <div>Welcome back <%= username %></div>
+    <% if(username) { %>
+      <div>Welcome back <%= username %></div>
+      <% } else { %>
+        <div>Welcome stranger. Why not sign in?</div>
+        <% } %>
 
     <ul class="nav navbar-nav">
       <li><a href="/">Home</a></li>
