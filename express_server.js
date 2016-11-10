@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 const stringGen = require('./lib/string_gen.js');
 
 app.set('view engine', 'ejs');
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
@@ -20,6 +21,13 @@ app.get('/', (req, res) => {
   }
   res.render('pages/index', templateVars);
 });
+
+app.get('/register', (req, res) => {
+  let templateVars = {
+    username: req.cookies.username
+  }
+  res.render('pages/user_reg', templateVars)
+})
 
 // request for urls_index view; renders page, passing in database object
 app.get('/urls', (req, res) => {

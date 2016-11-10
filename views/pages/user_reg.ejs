@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+</head>
+
+<body class="container">
+
+  <header>
+    <% include ../partials/blank_top %>
+    <% include ../partials/header %>
+  </hader>
+
+  <main>
+    <div class="jumbotron">
+      <h4>Enter Email and Password</h4>
+      <form method="POST" action="/register">
+        <input email="email" type="text" name="email" placeholder="Email" style="width: 200px; margin: 6px;">
+        <input password="password" type="text" name="password" placeholder="Password" style="width: 200px; margin: 6px;">
+        <input type="submit" value="Submit" style="margin: 6px;">
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <% include ../partials/footer %>
+  </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+
+    <% if(username) { %>
+      <div style="position: absolute; right: 12px; top: 12px;">
+        <form method="POST" action="/logout">
+          <input type="submit" value="Sign Out" style="margin: 4px, 0px, 0px, 0px; width: 68px;">
+          <!-- <button type="submit" name="button">
+            Sign Out
+          </button> -->
+        </form>
+      </div>
+    <% } else { %>
+      <div style="position: absolute; right: 0px; top: 0px;">
+        <form method="POST" action="/login">
+          <input type="submit" value="Sign In" style="margin: 4px, 0px, 0px, 0px; width: 68px;">
+          <!-- <button type="submit" name="button">
+            Sign In
+          </button> -->
+          <input name="username" type="text" style="width:150px; margin: 14px;">
+        </form>
+      </div>
+      <div style="position: absolute; right: 250px; top: 0px; margin: 15px;">
+        <form method="GET" action="/register">
+          <input type="submit" value="Sign Up" style="margin: 10px, 0px, 0px, 0px; width: 68px;">
+          <!-- <button type="submit" name="button">
+            Sign Up
+          </button> -->
+        </form>
+      </div>
+    <% } %>
+
+  </div>
+</nav>
