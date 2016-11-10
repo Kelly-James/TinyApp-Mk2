@@ -15,12 +15,19 @@ var urlDatabase = {
 };
 
 app.get('/', (req, res) => {
-  res.render('pages/index');
+  let templateVars = {
+    username: req.cookies.username
+  }
+  res.render('pages/index', templateVars);
 });
 
 // request for urls_index view; renders page, passing in database object
 app.get('/urls', (req, res) => {
-  res.render('pages/urls_index', {urls: urlDatabase});
+  let templateVars = {
+    username: req.cookies.username,
+    urls: urlDatabase
+  };
+  res.render('pages/urls_index', templateVars);
 });
 
 // makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
@@ -35,7 +42,10 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/new', (req, res) => {
-  res.render('pages/urls_new');
+  let templateVars = {
+    username: req.cookies.username
+  };
+  res.render('pages/urls_new', templateVars);
 });
 
 // makes get request to the value of longURL for original page
@@ -47,7 +57,12 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  res.render('pages/urls_edit', {shortURL: req.params.id, longURL: urlDatabase[req.params.id]});
+  let templateVars = {
+    username: req.cookies.username,
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id],
+  };
+  res.render('pages/urls_edit', templateVars);
 });
 
 // makes post request to urls_index to delete a url; redirects to urls_index
