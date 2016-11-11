@@ -1,0 +1,3 @@
+- function that creates templateVars; middleware possibly?
+- CSS to rid project of inline styling;
+- fix buttons, i.e. class tags;

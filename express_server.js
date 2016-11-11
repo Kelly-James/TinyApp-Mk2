@@ -10,29 +10,52 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-var urlDatabase = {
+const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
 
+const userDatabase = {};
+
+
+
+
 app.get('/', (req, res) => {
+  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: req.cookies.username
+    username: currentUser ? currentUser.username : ''
   }
+  // res.status(403).send('Something broke!');
   res.render('pages/index', templateVars);
 });
 
 app.get('/register', (req, res) => {
+  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: req.cookies.username
+    username: currentUser ? currentUser.username : ''
   }
   res.render('pages/user_reg', templateVars)
+});
+
+app.post('/register', (req, res) => {
+  let userId = stringGen.generator();
+  let username = req.body.username;
+  let email = req.body.email;
+  let password = req.body.password;
+  userDatabase[userId] = {id: userId,
+                          username: username,
+                          email: email,
+                          password: password};
+                          console.log(userDatabase[userId].username);
+  res.cookie('username', userId);
+  res.redirect('/');
 })
 
 // request for urls_index view; renders page, passing in database object
 app.get('/urls', (req, res) => {
+  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: req.cookies.username,
+    username: currentUser ? currentUser.username : '',
     urls: urlDatabase
   };
   res.render('pages/urls_index', templateVars);
@@ -50,8 +73,9 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/new', (req, res) => {
+  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: req.cookies.username
+    username: currentUser ? currentUser.username : ''
   };
   res.render('pages/urls_new', templateVars);
 });
@@ -65,8 +89,9 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
+  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: req.cookies.username,
+    username: currentUser ? currentUser.username : '',
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -81,7 +106,7 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // makes post request to urls_index to update the longURL; redirects to urls_index
 app.post('/urls/:id/update', (req, res) => {
-  let shortURL = req.params.id
+  let shortURL = req.params.id;
   let longURL = req.body.longURL;
   if(!longURL.startsWith('http://')) {
     longURL = 'http://' + longURL;
@@ -91,8 +116,20 @@ app.post('/urls/:id/update', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/');
+  console.log("UDB "+userDatabase);
+  const foundUser = Object.keys(userDatabase).find(function(userId, i, userNames) {
+    // debugger;
+    console.log(userId);
+    console.log(userDatabase[userId].username === req.body.username);
+    return userDatabase[userId].username === req.body.username;
+  });
+  console.log(foundUser);
+  if(foundUser) {
+    res.cookie('username', req.body.username);
+    res.redirect('/');
+  } else {
+    res.status(403).send('Something broke!');
+  }
 });
 
 app.post('/logout', (req, res) => {
