@@ -1,7 +1,7 @@
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
 
-    <% if(username) { %>
+    <% if(currentUser.username) { %>
       <div style="position: absolute; right: 12px; top: 12px;">
         <form method="POST" action="/logout">
           <input type="submit" value="Sign Out" style="margin: 4px, 0px, 0px, 0px; width: 68px;">
@@ -18,9 +18,10 @@
             Sign In
           </button> -->
           <input name="username" type="text" style="width:150px; margin: 14px;">
+          <!-- <input name="password" type="text" style="width:150px; margin: 14px;"> -->
         </form>
       </div>
-      <div style="position: absolute; right: 250px; top: 0px; margin: 15px;">
+      <div style="position: absolute; right: 254px; top: 0px; margin: 15px;">
         <form method="GET" action="/register">
           <input type="submit" value="Sign Up" style="margin: 10px, 0px, 0px, 0px; width: 68px;">
           <!-- <button type="submit" name="button">

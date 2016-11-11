@@ -5,8 +5,8 @@
       <a class="navbar-brand" href="#">
         <span class="glyphicon glyphicon glyphicon-tree-deciduos"></span>
         <!-- TinyApp -->
-        <% if(username) { %>
-          <span><%= username %>'s TinyApp</span>
+        <% if(currentUser.username) { %>
+          <span><%= currentUser.username %>'s TinyApp</span>
           <% } else { %>
             <span>TinyApp</span>
             <% } %>

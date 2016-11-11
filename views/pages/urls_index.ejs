@@ -20,12 +20,12 @@
         <div class="jumbotron">
           <h1>Your URLs</h1>
           <ul>
-            <% for(let key in urls) { %>
+            <% for(let key in urlDatabase) { %>
               <li>
                 <a href="/urls/<%= key %>">
                   http://tinyapp.com/u/<%= key %>
                 </a>
-                - <%= urls[key]%>
+                - <%= urlDatabase[key]%>
                 <form method="GET" action="/urls/<%= key %>/edit">
                   <input type="submit" value="EDIT" style="margin:6px;">
                 </form>

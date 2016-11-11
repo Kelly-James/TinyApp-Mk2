@@ -10,6 +10,16 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+// middleware which upon request from client, sets res.locals for currentUser and urlDatabase
+app.use(function(req, res, next) {
+  let currentUser = userDatabase[req.cookies.userId] || {};
+  req.currentUser = currentUser;
+  res.locals.currentUser = currentUser;
+  let urls = urlDatabase;
+  res.locals.urlDatabase = urls;
+  next();
+});
+
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
@@ -17,24 +27,12 @@ const urlDatabase = {
 
 const userDatabase = {};
 
-
-
-
 app.get('/', (req, res) => {
-  let currentUser = userDatabase[req.cookies.username];
-  let templateVars = {
-    username: currentUser ? currentUser.username : ''
-  }
-  // res.status(403).send('Something broke!');
-  res.render('pages/index', templateVars);
+  res.render('pages/index');
 });
 
 app.get('/register', (req, res) => {
-  let currentUser = userDatabase[req.cookies.username];
-  let templateVars = {
-    username: currentUser ? currentUser.username : ''
-  }
-  res.render('pages/user_reg', templateVars)
+  res.render('pages/user_reg')
 });
 
 app.post('/register', (req, res) => {
@@ -46,19 +44,13 @@ app.post('/register', (req, res) => {
                           username: username,
                           email: email,
                           password: password};
-                          console.log(userDatabase[userId].username);
-  res.cookie('username', userId);
+  res.cookie('userId', userId);
   res.redirect('/');
 })
 
 // request for urls_index view; renders page, passing in database object
 app.get('/urls', (req, res) => {
-  let currentUser = userDatabase[req.cookies.username];
-  let templateVars = {
-    username: currentUser ? currentUser.username : '',
-    urls: urlDatabase
-  };
-  res.render('pages/urls_index', templateVars);
+  res.render('pages/urls_index');
 });
 
 // makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
@@ -73,11 +65,7 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/new', (req, res) => {
-  let currentUser = userDatabase[req.cookies.username];
-  let templateVars = {
-    username: currentUser ? currentUser.username : ''
-  };
-  res.render('pages/urls_new', templateVars);
+  res.render('pages/urls_new');
 });
 
 // makes get request to the value of longURL for original page
@@ -89,13 +77,16 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  let currentUser = userDatabase[req.cookies.username];
   let templateVars = {
-    username: currentUser ? currentUser.username : '',
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
   res.render('pages/urls_edit', templateVars);
+});
+
+// 403 error pages
+app.get('/forbidden', (req, res) => {
+  res.render('pages/error_403');
 });
 
 // makes post request to urls_index to delete a url; redirects to urls_index
@@ -116,19 +107,18 @@ app.post('/urls/:id/update', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  console.log("UDB "+userDatabase);
-  const foundUser = Object.keys(userDatabase).find(function(userId, i, userNames) {
-    // debugger;
-    console.log(userId);
-    console.log(userDatabase[userId].username === req.body.username);
+  let userId = req.cookies.userId;
+  console.log(userId);
+  let foundUser = Object.keys(userDatabase)
+                        .find(function(userId, i, userNames) {
     return userDatabase[userId].username === req.body.username;
   });
-  console.log(foundUser);
   if(foundUser) {
-    res.cookie('username', req.body.username);
+    res.cookie('userId', userId);
     res.redirect('/');
   } else {
-    res.status(403).send('Something broke!');
+    res.status(403).redirect('/forbidden');
+    // res.status(403).send('Something is broke!');
   }
 });
 
