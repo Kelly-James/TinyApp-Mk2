@@ -17,6 +17,8 @@ app.use(function(req, res, next) {
   res.locals.currentUser = currentUser;
   let urls = urlDatabase;
   res.locals.urlDatabase = urls;
+  // let shortURL = req.params.id
+  // res.locals.shortURL = shortURL;
   next();
 });
 
@@ -77,6 +79,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
+  // console.log(req.params.id);
   let templateVars = {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
@@ -107,23 +110,29 @@ app.post('/urls/:id/update', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  let userId = req.cookies.userId;
-  console.log(userId);
+  // let userId = req.cookies.userId;
+  // console.log(req.body);
+  // console.log(userDatabase);
+  // debugger;
   let foundUser = Object.keys(userDatabase)
                         .find(function(userId, i, userNames) {
     return userDatabase[userId].username === req.body.username;
   });
-  if(foundUser) {
-    res.cookie('userId', userId);
+  // let foundUser.userId = foundUser[userId];
+  // let foundUser.username = userDatabase[foundUser].username;
+  // let foundUser.email = foundUser[email];
+  // let foundUser.password = foundUser[password];
+  debugger;
+  if(foundUser && userDatabase[foundUser].password === req.body.password) {
+    res.cookie('userId', foundUser);
     res.redirect('/');
   } else {
     res.status(403).redirect('/forbidden');
-    // res.status(403).send('Something is broke!');
   }
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username', {path: '/'});
+  res.clearCookie('userId', {path: '/'});
   res.redirect('/');
 });
 
