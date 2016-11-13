@@ -106,8 +106,6 @@ app.get('/u/:shortURL', (req, res) => {
 app.get('/urls/:id/edit', (req, res) => {
   debugger;
   if(req.cookies.userId) {
-    // console.log(req.cookies.userId);
-    // console.log(res.locals.currentUser.id);
     let currentUser = res.locals.currentUser;
     let shortURL = req.params.id;
     let templateVars = {
