@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 5000;
 const stringGen = require('./lib/string_gen.js');
+const longUrlFinder = require('./lib/url_finder.js');
 
 app.set('view engine', 'ejs');
 
@@ -16,20 +17,11 @@ app.use(function(req, res, next) {
     let currentUser = userDatabase[req.cookies.userId];
     req.currentUser = currentUser;
     res.locals.currentUser = currentUser;
-    // res.locals.urlDatabase = currentUser['urls'];
   } else {
     res.locals.currentUser = null;
   }
-  // let shortURL = req.params.id
-  // res.locals.shortURL = shortURL;
-  // debugger;
   next();
 });
-
-// const urlDatabase = {
-//   'b2xVn2': 'http://www.lighthouselabs.ca',
-//   '9sm5xK': 'http://www.google.com'
-// };
 
 const userDatabase = {
   'e23456': {
@@ -43,27 +35,7 @@ const userDatabase = {
   }
 };
 
-function findLongUrl(shortUrl) {
-  let longURL = '';
-  Object.keys(userDatabase).forEach(function(userId) {
-    console.log(userId);
-    Object.keys(userDatabase[userId]['urls']).forEach(function(urlId) {
-      console.log(urlId);
-      if(urlId === shortUrl) {
-        console.log(userDatabase[userId]['urls'][urlId]);
-        longURL = userDatabase[userId]['urls'][urlId];
-        return;
-      }
-    })
-    if(longURL) {
-      return;
-    }
-  })
-  return longURL;
-}
-
 app.get('/', (req, res) => {
-  // debugger;
   res.render('pages/index');
 });
 
@@ -122,7 +94,7 @@ app.get('/new', (req, res) => {
 // makes get request to the value of longURL for original page
 app.get('/u/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = findLongUrl(shortURL);
+  let longURL = longUrlFinder.find(shortURL);
   if(longURL) {
     res.redirect(longURL);
   } else {
@@ -132,9 +104,12 @@ app.get('/u/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
+  debugger;
   if(req.cookies.userId) {
-    let currentUser = res.locals.currentUser.id;
-    let shortUrl = req.params.id;
+    // console.log(req.cookies.userId);
+    // console.log(res.locals.currentUser.id);
+    let currentUser = res.locals.currentUser;
+    let shortURL = req.params.id;
     let templateVars = {
       shortURL: shortURL,
       longURL: currentUser['urls'][shortURL]
