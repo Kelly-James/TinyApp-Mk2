@@ -20,12 +20,12 @@
         <div class="jumbotron">
           <h1>Your URLs</h1>
           <ul>
-            <% for(let key in urlDatabase) { %>
+            <% for(let key in currentUser['urls']) { %>
               <li>
                 <a href="/urls/<%= key %>">
                   http://tinyapp.com/u/<%= key %>
                 </a>
-                - <%= urlDatabase[key]%>
+                - <%= currentUser['urls'][key] %>
                 <form method="GET" action="/urls/<%= key %>/edit">
                   <input type="submit" value="EDIT" style="margin:6px;">
                 </form>
@@ -36,12 +36,13 @@
 
       </div>
       <div class="col-sm-4">
-
-        <div class="well">
-          <a href="new">
-            <h3>Shorten a URL</h3>
-          </a>
-        </div>
+          <div class="well">
+            <% if(currentUser.username) { %>
+            <a href="new">
+              <h3>Shorten a URL</h3>
+            </a>
+            <% } %>
+          </div>
 
       </div>
     </div>

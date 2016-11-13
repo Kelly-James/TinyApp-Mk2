@@ -10,26 +10,60 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-// middleware which upon request from client, sets res.locals for currentUser and urlDatabase
+// middleware, which creates an object conatining response local variables
 app.use(function(req, res, next) {
-  let currentUser = userDatabase[req.cookies.userId] || {};
-  req.currentUser = currentUser;
-  res.locals.currentUser = currentUser;
-  let urls = urlDatabase;
-  res.locals.urlDatabase = urls;
+  if(req.cookies.userId) {
+    let currentUser = userDatabase[req.cookies.userId];
+    req.currentUser = currentUser;
+    res.locals.currentUser = currentUser;
+    // res.locals.urlDatabase = currentUser['urls'];
+  } else {
+    res.locals.currentUser = null;
+  }
   // let shortURL = req.params.id
   // res.locals.shortURL = shortURL;
+  // debugger;
   next();
 });
 
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+// const urlDatabase = {
+//   'b2xVn2': 'http://www.lighthouselabs.ca',
+//   '9sm5xK': 'http://www.google.com'
+// };
+
+const userDatabase = {
+  'e23456': {
+    id: 'e23456',
+    username: 'Elephant',
+    email: 'word@word.com',
+    password: 'word',
+    urls: {
+      'b2xVn2': 'http://www.lighthouselabs.ca'
+    }
+  }
 };
 
-const userDatabase = {};
+function findLongUrl(shortUrl) {
+  let longURL = '';
+  Object.keys(userDatabase).forEach(function(userId) {
+    console.log(userId);
+    Object.keys(userDatabase[userId]['urls']).forEach(function(urlId) {
+      console.log(urlId);
+      if(urlId === shortUrl) {
+        console.log(userDatabase[userId]['urls'][urlId]);
+        longURL = userDatabase[userId]['urls'][urlId];
+        return;
+      }
+    })
+    if(longURL) {
+      return;
+    }
+  })
+  return longURL;
+}
 
 app.get('/', (req, res) => {
+  // debugger;
   res.render('pages/index');
 });
 
@@ -42,49 +76,73 @@ app.post('/register', (req, res) => {
   let username = req.body.username;
   let email = req.body.email;
   let password = req.body.password;
-  userDatabase[userId] = {id: userId,
+  userDatabase[userId] = {
+                          id: userId,
                           username: username,
                           email: email,
-                          password: password};
+                          password: password,
+                          urls: {}
+                        };
   res.cookie('userId', userId);
   res.redirect('/');
 })
 
-// request for urls_index view; renders page, passing in database object
+// request for urls_index view;
 app.get('/urls', (req, res) => {
-  res.render('pages/urls_index');
+  if(req.cookies.userId) {
+    res.render('pages/urls_index');
+  } else {
+    res.redirect('/');
+  }
 });
 
-// makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
+// makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body.longURL; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
 app.post('/urls', (req, res) => {
-  let shortURL = stringGen.generator();
-  let longURL = req.body.longURL;
-  if(!longURL.startsWith('http://')) {
-    longURL = 'http://' + longURL;
+  if(req.cookies.userId) {
+    let shortURL = stringGen.generator();
+    let longURL = req.body.longURL;
+    if(!longURL.startsWith('http://')) {
+      longURL = 'http://' + longURL;
+    }
+    res.locals.currentUser['urls'][shortURL] = longURL;
+    res.redirect('/urls');
+  } else {
+    res.redirect('/');
   }
-  urlDatabase[shortURL] = longURL;
-  res.redirect('/urls');
 });
 
 app.get('/new', (req, res) => {
-  res.render('pages/urls_new');
+  if(req.cookies.userId) {
+    res.render('pages/urls_new');
+  } else {
+    res.redirect('/');
+  }
 });
 
 // makes get request to the value of longURL for original page
-app.get('/urls/:shortURL', (req, res) => {
+app.get('/u/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+  let longURL = findLongUrl(shortURL);
+  if(longURL) {
+    res.redirect(longURL);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  // console.log(req.params.id);
-  let templateVars = {
-    shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
-  };
-  res.render('pages/urls_edit', templateVars);
+  if(req.cookies.userId) {
+    let currentUser = res.locals.currentUser.id;
+    let shortUrl = req.params.id;
+    let templateVars = {
+      shortURL: shortURL,
+      longURL: currentUser['urls'][shortURL]
+    };
+    res.render('pages/urls_edit', templateVars);
+  } else {
+    res.redirect('/');
+  }
 });
 
 // 403 error pages
@@ -94,35 +152,34 @@ app.get('/forbidden', (req, res) => {
 
 // makes post request to urls_index to delete a url; redirects to urls_index
 app.post('/urls/:id/delete', (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls');
+  if(req.cookies.userId) {
+    delete currentUser['urls'][req.params.id];
+    res.redirect('/urls');
+  } else {
+    res.redirect('/');
+  }
 });
 
 // makes post request to urls_index to update the longURL; redirects to urls_index
 app.post('/urls/:id/update', (req, res) => {
-  let shortURL = req.params.id;
-  let longURL = req.body.longURL;
-  if(!longURL.startsWith('http://')) {
-    longURL = 'http://' + longURL;
+  if(req.cookies.userId) {
+    let shortURL = req.params.id;
+    let longURL = req.body.longURL;
+    if(!longURL.startsWith('http://')) {
+      longURL = 'http://' + longURL;
+    }
+    currentUser['urls'][shortURL] = longURL;
+    res.redirect('/urls');
+  } else {
+    res.redirect('/');
   }
-  urlDatabase[shortURL] = longURL;
-  res.redirect('/urls');
 });
 
 app.post('/login', (req, res) => {
-  // let userId = req.cookies.userId;
-  // console.log(req.body);
-  // console.log(userDatabase);
-  // debugger;
   let foundUser = Object.keys(userDatabase)
                         .find(function(userId, i, userNames) {
     return userDatabase[userId].username === req.body.username;
   });
-  // let foundUser.userId = foundUser[userId];
-  // let foundUser.username = userDatabase[foundUser].username;
-  // let foundUser.email = foundUser[email];
-  // let foundUser.password = foundUser[password];
-  debugger;
   if(foundUser && userDatabase[foundUser].password === req.body.password) {
     res.cookie('userId', foundUser);
     res.redirect('/');
@@ -134,10 +191,6 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   res.clearCookie('userId', {path: '/'});
   res.redirect('/');
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
 });
 
 app.listen(PORT, () => {

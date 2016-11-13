@@ -1,21 +1,21 @@
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
 
-    <% if(currentUser.username) { %>
+    <% if(currentUser) { %>
       <div style="position: absolute; right: 12px; top: 12px;">
         <form method="POST" action="/logout">
           <input type="submit" value="Sign Out" style="margin: 4px, 0px, 0px, 0px; height: 24px; width: 68px;">
         </form>
       </div>
     <% } else { %>
-      <div style="position: absolute; right: 12px; top: 12px;">
+      <div style="position: absolute; left: 12px; top: 12px;">
         <form method="POST" action="/login">
           <input type="submit" value="Sign In" style="margin: 10px, 10px, 0px, 0px; height: 24px; width: 68px;">
           <input name="username" type="text" placeholder="Username" style="height: 24px; width:150px; margin: 14px, 14px;">
           <input name="password" type="text" placeholder="Password" style="height: 24px; width:150px; margin: 14px, 14px;">
         </form>
       </div>
-      <div style="position: absolute; left: 0px; top: 0px; margin: 15px;">
+      <div style="position: absolute; right: 12px; top: 0px; margin: 15px;">
         <p>New to TinyApp? <a href="/register">Register</a></p>
       </div>
     <% } %>
