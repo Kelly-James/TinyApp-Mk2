@@ -6,18 +6,21 @@ const hashed_password = bcrypt.hashSync(password, 10);
 const stringGen = require('./lib/string_gen.js');
 const longUrlFinder = require('./lib/url_finder.js');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const PORT = process.env.PORT || 5000;
 
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  secret: 'there is no darkness'
+}));
 
 // middleware, which creates an object conatining response local variables
 app.use(function(req, res, next) {
-  if(req.cookies.userId) {
-    let currentUser = userDatabase[req.cookies.userId];
+  if(req.session.userId) {
+    let currentUser = userDatabase[req.session.userId];
     req.currentUser = currentUser;
     res.locals.currentUser = currentUser;
   } else {
@@ -48,15 +51,15 @@ app.post('/register', (req, res) => {
                           password: password,
                           urls: {}
                         };
-                        // debugger;
-                        console.log(userDatabase);
-  res.cookie('userId', userId);
+  req.session.userId = userId;
+  console.log(userDatabase[userId]);
+  console.log(req.session.userId);
   res.redirect('/');
 })
 
 // request for urls_index view;
 app.get('/urls', (req, res) => {
-  if(req.cookies.userId) {
+  if(req.session.userId) {
     res.render('pages/urls_index');
   } else {
     res.redirect('/');
@@ -65,7 +68,7 @@ app.get('/urls', (req, res) => {
 
 // makes post to urls_index; invokes random string generator module, sets shortURL to return value; longURL set to request body.longURL; if statement checks for presence of 'http' prefix; adds new key/value pair to database object
 app.post('/urls', (req, res) => {
-  if(req.cookies.userId) {
+  if(req.session.userId) {
     let shortURL = stringGen.generator();
     let longURL = req.body.longURL;
     if(!longURL.startsWith('http://')) {
@@ -79,7 +82,7 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/new', (req, res) => {
-  if(req.cookies.userId) {
+  if(req.session.userId) {
     res.render('pages/urls_new');
   } else {
     res.redirect('/');
@@ -99,8 +102,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  // debugger;
-  if(req.cookies.userId) {
+  if(req.session.userId) {
     let currentUser = res.locals.currentUser;
     let shortURL = req.params.id;
     let templateVars = {
@@ -120,8 +122,8 @@ app.get('/forbidden', (req, res) => {
 
 // makes post request to urls_index to delete a url; redirects to urls_index
 app.post('/urls/:id/delete', (req, res) => {
-  if(req.cookies.userId) {
-    delete currentUser['urls'][req.params.id];
+  if(req.session.userId) {
+    delete res.locals.currentUser['urls'][req.params.id];
     res.redirect('/urls');
   } else {
     res.redirect('/');
@@ -130,13 +132,14 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // makes post request to urls_index to update the longURL; redirects to urls_index
 app.post('/urls/:id/update', (req, res) => {
-  if(req.cookies.userId) {
+  debugger;
+  if(req.session.userId) {
     let shortURL = req.params.id;
     let longURL = req.body.longURL;
     if(!longURL.startsWith('http://')) {
       longURL = 'http://' + longURL;
     }
-    currentUser['urls'][shortURL] = longURL;
+    res.locals.currentUser['urls'][shortURL] = longURL;
     res.redirect('/urls');
   } else {
     res.redirect('/');
@@ -150,7 +153,8 @@ app.post('/login', (req, res) => {
   });
   let passMatch = bcrypt.compareSync(req.body.password, userDatabase[foundUser].password);
   if(foundUser && passMatch) {
-    res.cookie('userId', foundUser);
+    req.session.userId = foundUser;
+    console.log(req.session.userId);
     res.redirect('/');
   } else {
     res.status(403).redirect('/forbidden');
@@ -158,7 +162,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('userId', {path: '/'});
+  req.session = null;
   res.redirect('/');
 });
 
