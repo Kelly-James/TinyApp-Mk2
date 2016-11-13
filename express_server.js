@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
+const bcrypt = require('bcrypt');
+const password = 'purple-monkey-dinosaur';
+const hashed_password = bcrypt.hashSync(password, 10);
+const stringGen = require('./lib/string_gen.js');
+const longUrlFinder = require('./lib/url_finder.js');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 5000;
-const stringGen = require('./lib/string_gen.js');
-const longUrlFinder = require('./lib/url_finder.js');
 
 app.set('view engine', 'ejs');
 
@@ -23,17 +26,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-const userDatabase = {
-  'e23456': {
-    id: 'e23456',
-    username: 'Elephant',
-    email: 'word@word.com',
-    password: 'word',
-    urls: {
-      'b2xVn2': 'http://www.lighthouselabs.ca'
-    }
-  }
-};
+const userDatabase = {};
 
 app.get('/', (req, res) => {
   res.render('pages/index');
@@ -47,7 +40,7 @@ app.post('/register', (req, res) => {
   let userId = stringGen.generator();
   let username = req.body.username;
   let email = req.body.email;
-  let password = req.body.password;
+  let password = bcrypt.hashSync(req.body.password, 10);
   userDatabase[userId] = {
                           id: userId,
                           username: username,
@@ -55,6 +48,8 @@ app.post('/register', (req, res) => {
                           password: password,
                           urls: {}
                         };
+                        // debugger;
+                        console.log(userDatabase);
   res.cookie('userId', userId);
   res.redirect('/');
 })
@@ -104,7 +99,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 // sends request to render edit page
 app.get('/urls/:id/edit', (req, res) => {
-  debugger;
+  // debugger;
   if(req.cookies.userId) {
     let currentUser = res.locals.currentUser;
     let shortURL = req.params.id;
@@ -153,7 +148,8 @@ app.post('/login', (req, res) => {
                         .find(function(userId, i, userNames) {
     return userDatabase[userId].username === req.body.username;
   });
-  if(foundUser && userDatabase[foundUser].password === req.body.password) {
+  let passMatch = bcrypt.compareSync(req.body.password, userDatabase[foundUser].password);
+  if(foundUser && passMatch) {
     res.cookie('userId', foundUser);
     res.redirect('/');
   } else {
