@@ -23,11 +23,11 @@
             http://tinyapp.com/u/<%= shortURL %>
             </a>
             - <%= longURL %>
-            <form method="POST" action="/urls/<%= shortURL %>/update">
+            <form method="POST" action="/your_urls/<%= shortURL %>/update">
               <input type ="submit" value="Update" style="margin: 6px;">
-              <input longURL="longURL" type="text" name="longURL" placeholder="www." style="width: 300px">
+              <input longURL="longURL" type="text" name="longURL" value="<%= longURL %>" style="width: 300px">
             </form>
-          <form method="POST" action="/urls/<%= shortURL %>/delete">
+          <form method="POST" action="/your_urls/<%= shortURL %>/delete">
             <input type="submit" value="Delete" style="margin: 6px;">
           </form>
         </div>

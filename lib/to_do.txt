@@ -1,3 +1,8 @@
 - function that creates templateVars; middleware possibly?
 - CSS to rid project of inline styling;
 - fix buttons, i.e. class tags;
+
+
+- straighten out sessions/re: login with unknown username
+  - i think this is related to the userDatabase object
+  - straighten out userDatabase/urlFinder function

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+</head>
+
+<body class="container">
+
+  <header>
+    <% include ../partials/buttons %>
+    <% include ../partials/header %>
+  </header>
+
+  <main>
+    <div class="row">
+      <div class="col-sm-8">
+
+        <div class="jumbotron">
+          <h1>Short URLs</h1>
+          <ul>
+            <% for(let key in urls) { %>
+              <li>
+                <a href="/u/<%= key %>">
+                  http://tinyapp.com/u/<%= key %>
+                </a>
+                - <%= urls[key] %>
+              </li>
+            <% }; %>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="col-sm-4">
+
+          <div class="well">
+              <h4>Sign In to Post and Edit URLs</h4>
+              <h5>Not a memeber? <a href="/register">Registation</a> is Free</h5>
+          </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <% include ../partials/footer %>
+  </footer>
+
+</body>
+</html>

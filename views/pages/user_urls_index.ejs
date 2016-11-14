@@ -18,11 +18,11 @@
       <div class="col-sm-8">
 
         <div class="jumbotron">
-          <h1>Your URLs</h1>
+          <h1>Your Short URLs</h1>
           <ul>
             <% for(let key in currentUser['urls']) { %>
               <li>
-                <a href="/urls/<%= key %>">
+                <a href="/u/<%= key %>">
                   http://tinyapp.com/u/<%= key %>
                 </a>
                 - <%= currentUser['urls'][key] %>
