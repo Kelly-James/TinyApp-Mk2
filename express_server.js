@@ -17,12 +17,12 @@ app.use(cookieSession({
   secret: 'there is no darkness'
 }));
 
-// middleware,
+// middleware, <-- the code above is middleware too. This comment can be moved.
 app.use(function(req, res, next) {
-  if(req.session.userId) {
+  if(req.session.userId) { // this may not be necessary. if req.session.userId is undefined, then currentUser will be undefined which is falsey. I believe David covered this in his breakout.
     let currentUser = userDatabase[req.session.userId];
     req.currentUser = currentUser;
-    res.locals.currentUser = currentUser;
+    res.locals.currentUser = currentUser; // Oooh! Nice use of res.locals.
   } else {
     res.locals.currentUser = null;
   }
@@ -44,7 +44,7 @@ app.post('/register', (req, res) => {
     let userId = stringGen.generator();
     let username = req.body.username;
     let email = req.body.email;
-    let password = bcrypt.hashSync(req.body.password, 10);
+    let password = bcrypt.hashSync(req.body.password, 10); // it might be helpful for others reading your code, if you rename this variable to hashedPassword.
     userDatabase[userId] = {
                             id: userId,
                             username: username,
@@ -61,15 +61,18 @@ app.post('/register', (req, res) => {
 
 // login/logout
 app.post('/login', (req, res) => {
-  let foundUser = Object.keys(userDatabase)
-  .find(function(userId) {
+  let foundUser = Object.keys(userDatabase) // naming suggestion: this is not the entire user object, it's just the id. something like foundUserId might be better.
+  .find(function(userId) { // nice use of find!
     return userDatabase[userId].username === req.body.username;
   });
   let passMatch = false;
   if(foundUser) {
-    passMatch = bcrypt.compareSync(req.body.password, userDatabase[foundUser].password);
+    passMatch = bcrypt.compareSync(req.body.password, userDatabase[foundUser].password); // this is a long line of code. Might be nice to assign some of those parameters to variables to make it easier to read.
   };
-  if(foundUser && passMatch) {
+  // FYI you could refactor the lines above as
+  // const passMatch = foundUser && bcrypt.compareSync(...)
+
+  if(foundUser && passMatch) {  // This is nice to read!
     req.session.userId = foundUser;
     res.redirect('/');
   } else {
@@ -87,7 +90,7 @@ app.get('/your_urls', (req, res) => {
   if(req.session.userId) {
     res.render('pages/user_urls_index');
   } else {
-    res.redirect('/urls');
+    res.redirect('/urls'); // would it make sense to rename this to /login?
   }
 });
 
@@ -96,10 +99,10 @@ app.post('/your_urls', (req, res) => {
   if(req.session.userId) {
     let shortURL = stringGen.generator();
     let longURL = req.body.longURL;
-    if(!longURL.includes('://')) {
+    if(!longURL.includes('://')) { // This might be better as if(!longURL.startsWith('http://')) {. You are doing this in the update route.
       longURL = 'http://' + longURL;
     }
-    res.locals.currentUser['urls'][shortURL] = longURL;
+    res.locals.currentUser['urls'][shortURL] = longURL; // this is not necessary because you are doing a redirect in this page. res.locals is just for templateVars to be passed to an ejs file that is rendered.
     urlDatabase[shortURL] = longURL;
     res.redirect('/your_urls');
   } else {
@@ -119,7 +122,7 @@ app.get('/new', (req, res) => {
 // view edit page
 app.get('/urls/:id/edit', (req, res) => {
   if(req.session.userId) {
-    let currentUser = res.locals.currentUser;
+    let currentUser = res.locals.currentUser; // Conceptually it feels cleaner to look up the data from req.currentUser instead of res.locals.currentUser
     let shortURL = req.params.id;
     let templateVars = {
       shortURL: shortURL,
